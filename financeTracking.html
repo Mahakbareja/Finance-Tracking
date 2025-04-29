@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracking</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<style>
+    /* Add this CSS to style the button and modal */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background-color: #4b68af;
+        color: white;
+        padding: 1em 0;
+        text-align: center;
+        position: relative;
+    }
+
+    /* Signup and Login Button Style */
+    #signup-btn, #login-btn {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        background-color: #3da0b4;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #login-btn {
+        right: 120px; /* To position next to the signup button */
+    }
+
+    #signup-btn:hover, #login-btn:hover {
+        background-color: #45a049;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 30%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5em;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .close-btn:hover {
+        color: red;
+    }
+
+    /* Style for forms */
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        margin: 10px 0 5px;
+    }
+
+    input, button {
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button {
+        background-color: #333;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 10px 15px;
+    }
+
+    button:hover {
+        background-color: #555;
+    }
+    table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%; /* Makes the circle */
+            background-color: #4285F4; /* Gmail-like color */
+            color: white; /* Text color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase; /* Capitalize the letter */
+        }
+
+        /* For positioning login/signup buttons to the right */
+        .auth-buttons {
+            /* display: flex; */
+            gap: 10px;
+        }
+
+        /* For the user logo */
+        #logo-container {
+            display: none; /* Hide logo by default */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* When logged in, show the user logo and hide the login/signup buttons */
+        .logged-in #logo-container {
+            display: flex;
+        }
+
+        .logged-in .auth-buttons {
+            display: none;
+        }
+        #logout-btn {
+            font-size: 15px;
+            width: 80px;
+            height: 30px;
+            display: none;
+            margin-top: -2px;
+            margin-right: 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 0px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+#logout-btn:hover {
+    background-color: #ff1a1a;
+}
+</style>
+<body>
+
+    <header>
+        <h1>Finance Tracking System</h1>     
+        <div id="logo-container" class="logo-container" style="margin-left: 1350px;margin-top: -90px;">
+            <p id="userLogo" class="logo"></p>
+            
+        </div>
+        
+        <div class="auth-buttons" id="auth-buttons">
+            <button id="login-btn" style="margin-top: 30px;">Login</button>
+            <button id="signup-btn" style="margin-top: 30px;">Signup</button>
+            
+            
+        </div>
+        <button id="logout-btn" style=" margin-left:1398px;" onclick="handlelogout()">Logout</button>
+        <!-- <button id="signup-btn" style="margin-top: 30px;">Logout</button> -->
+    </header>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Signup</h2>
+            <form id="signup-form">
+                <label for="signup-username">Name:</label>
+                <input type="text" id="signup-username" name="Name" required>
+
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email" name="email" required>
+                
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password" name="password" required>
+                
+                <button type="submit">Signup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" name="email" required>
+                
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" name="password" required>
+                
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content (Existing content) -->
+    <main>
+        <div>
+            <p style="font-size: 20px;">Fetching categories for User ID: <span id="userIdDisplay" style="font-size: 20px;color: #555;"></span></p>
+        </div>
+        <h3 style="text-align: center;">Categories Table</h3>
+        <table id="categoriesTable">
+            <thead>
+                <tr>
+                    <th>Category ID</th>
+                    <th>Category Name</th>
+                    <th>Category Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be inserted here -->
+            </tbody>
+        </table>
+
+        <!-- For transactions -->
+        <h3 style="text-align: center;">Transactions Table</h3>
+        <table id="transactionsTable">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+        <!-- For budgets -->
+        <h3 style="text-align: center;">Budget Table</h3>
+        <table id="budgetsTable">
+            <thead>
+                <tr>
+                    <th>Budget ID</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+        
+        <!-- For goals -->
+        <h3 style="text-align: center;">Goals Table</h3>
+        <table id="goalsTable">
+            <thead>
+                <tr>
+                    <th>Goal ID</th>
+                    <th>Goal Name</th>
+                    <th>Target Amount</th>
+                    <th>Current Amount</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+
+        <!-- For notifications -->
+        <h3 style="text-align: center;">Notifications Table</h3>
+        <table id="notificationsTable">
+            <thead>
+                <tr>
+                    <th>Notification ID</th>
+                    <th>Message</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+        <br>
+        
+        <section id="add-account">
+            <h2>Add Account</h2>
+            <form action="http://localhost:3000/add-account" method="post">
+                <label for="account-user-id">User ID:</label>
+                <input type="text" id="account-user-id" name="user_id" readonly>
+                <label for="account-name">Account Name:</label>
+                <input type="text" id="account-name" name="account_name" readonly>
+                <label for="account-type">Account Type:</label>
+                <select id="account-type" name="account_type" required>
+                    <option value="Checking">Checking</option>
+                    <option value="Savings">Savings</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Investment">Investment</option>
+                </select>
+                <label for="account-balance">Balance:</label>
+                <input type="number" id="account-balance" name="balance" step="0.01" required>
+                <button type="submit">Add Account</button>
+            </form>
+        </section>
+        <section id="add-category">
+            <h2>Add Category</h2>
+            <form action="http://localhost:3000/add-category" method="post">
+                <label for="category-user-id">User ID:</label>
+                <input type="text" id="category-user-id" name="user_id" readonly>
+                <label for="category-name">Category Name:</label>
+                <input type="text" id="category-name" name="category_name" required>
+                <label for="category-type">Category Type:</label>
+                <select id="category-type" name="category_type" required>
+                    <option value="Expense">Expense</option>
+                    <option value="Income">Income</option>
+                </select>
+                <button type="submit">Add Category</button>
+            </form>
+        </section>
+        
+        <section id="add-transaction">
+            <h2>Add Transaction</h2>
+            <form action="http://localhost:3000/add-transaction" method="post">
+                <label for="transaction-user-id">User ID:</label>
+                <input type="text" id="transaction-user-id" name="user_id" readonly>
+                <label for="transaction-account-id">Account ID:</label>
+                <input type="number" id="transaction-account-id" name="account_id" required>
+                <label for="transaction-category-id">Category ID:</label>
+                <input type="number" id="transaction-category-id" name="category_id" required>
+                <label for="transaction-amount">Amount:</label>
+                <input type="number" id="transaction-amount" name="amount" step="0.01" required>
+                <label for="transaction-date">Date:</label>
+                <input type="date" id="transaction-date" name="transaction_date" required>
+                <label for="transaction-description">Description:</label>
+                <textarea id="transaction-description" name="description"></textarea>
+                <button type="submit">Add Transaction</button>
+            </form>
+        </section>
+        
+        <section id="add-budget">
+            <h2>Add Budget</h2>
+            <form action="http://localhost:3000/add-budget" method="post">
+                <label for="budget-user-id">User ID:</label>
+                <input type="text" id="budget-user-id" name="user_id" readonly>
+                <label for="budget-category-id">Category ID:</label>
+                <input type="number" id="budget-category-id" name="category_id" required>
+                <label for="budget-amount">Amount:</label>
+                <input type="number" id="budget-amount" name="amount" step="0.01" required>
+                <label for="budget-start-date">Start Date:</label>
+                <input type="date" id="budget-start-date" name="start_date" required>
+                <label for="budget-end-date">End Date:</label>
+                <input type="date" id="budget-end-date" name="end_date" required>
+                <button type="submit">Add Budget</button>
+            </form>
+        </section>
+        
+        <section id="add-goal">
+            <h2>Add Goal</h2>
+            <form action="http://localhost:3000/add-goal" method="post">
+                <label for="goal-user-id">User ID:</label>
+                <input type="text" id="goal-user-id" name="user_id" readonly>
+                <label for="goal-name">Goal Name:</label>
+                <input type="text" id="goal-name" name="goal_name" required>
+                <label for="target-amount">Target Amount:</label>
+                <input type="number" id="target-amount" name="target_amount" step="0.01" required>
+                <label for="current-amount">Current Amount:</label>
+                <input type="number" id="current-amount" name="current_amount" step="0.01">
+                <label for="due-date">Due Date:</label>
+                <input type="date" id="due-date" name="due_date" required>
+                <button type="submit">Add Goal</button>
+            </form>
+        </section>
+        
+        <section id="add-notification">
+            <h2>Add Notification</h2>
+            <form action="http://localhost:3000/add-notification" method="post">
+                <label for="notification-user-id">User ID:</label>
+                <input type="text" id="notification-user-id" name="user_id" readonly>
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" required></textarea>
+                <label for="is-read">Is Read:</label>
+                <select id="is-read" name="is_read">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+                <button type="submit">Add Notification</button>
+            </form>
+        </section>
+        
+        <!-- Other Sections (Add Category, Transaction, etc.) -->
+    </main>
+
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        // Initialize EmailJS
+        emailjs.init("LwC1q78tlt7K31RBL");  // Replace with your actual EmailJS User ID
+        
+        // Open and Close Modal
+        const signupBtn = document.getElementById('signup-btn');
+        const modal = document.getElementById('signup-modal');
+        const closeModal = document.querySelector('.close-btn');
+        
+        // Open Modal when 'Signup' button is clicked
+        signupBtn.addEventListener('click', () => {
+            modal.style.display = 'block';
+        });
+    
+        // Close Modal when 'Close' button is clicked
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    
+        // Close Modal if the user clicks outside the modal
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        // Form Submission
+        const signupForm = document.getElementById('signup-form');
+                signupForm.addEventListener('submit', async(event) => {
+                    event.preventDefault();  // Prevent page reload on form submission
+                    const username = document.getElementById('signup-username').value;
+                    const email = document.getElementById('signup-email').value;
+                    const password = document.getElementById('signup-password').value;
+            
+                    // Create random user ID (you can use a library like 'uuid' or similar for production)
+                    const userId = Math.floor(Math.random() * 1000000000);  // Random ID between 0-999999
+                    try {
+                // Send signup data to the backend
+                const response = await fetch('http://localhost:3000/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId,username,email, password }),
+                });
+
+                const result = await response.json();
+                console.log(response);
+                if (response.ok) {
+                    alert('Signup Successful!');
+                    sendEmailWithUserId(userId, email, password);  // Passing the userId to the send function
+                    document.getElementById('signup-modal').style.display = 'none';
+                } else {
+                    alert(`Signup Failed: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
+            }
+            // Send the random userId to the provided email via EmailJS
+            
+        });
+    
+        // Send User ID to Email using EmailJS
+        function sendEmailWithUserId(userId, email, password) {
+            const templateParams = {
+                to_email: email,  // Recipient email address
+                user_id: userId,   // Generated user ID
+                message: `${userId}`  // Password (optional, or can be replaced with more user info)
+            };
+    
+            // Sending the email to the user
+            emailjs.send('service_68iq72h', 'template_p5w3n4e', templateParams)
+                .then(function(response) {
+                    console.log('Email sent successfully:', response);
+                    alert('Signup successful! Check your email for the details.');
+                }, function(error) {
+                    console.error('Error sending email:', error);
+                    alert('Failed to send email. Please try again later.');
+                });
+    
+            // Optionally, you can send another email to yourself or to a different recipient
+            emailjs.send('service_68iq72h', 'template_p5w3n4e', templateParams)
+                .then(function(response) {
+                    console.log('Email sent to customer successfully:', response);
+                }, function(error) {
+                    console.error('Error sending email to customer:', error);
+                });
+        }
+        const loginBtn = document.getElementById('login-btn');
+        const loginModal = document.getElementById('login-modal');
+        const closeLoginModal = loginModal.querySelector('.close-btn');
+        
+        loginBtn.addEventListener('click', () => {
+            loginModal.style.display = 'block';
+        });
+        closeLoginModal.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+        window.addEventListener('click', (event) => {
+            if (event.target === loginModal) {
+                loginModal.style.display = 'none';
+            }
+        });
+
+        // Handle Login Form Submission
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async(event) => {
+            event.preventDefault();  // Prevent page reload
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Prepare the payload to send to the backend
+            const payload = { email, password };
+
+            // Send POST request to the backend login API
+            try {
+                // Send login data to the backend
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),  // Send the payload directly
+                });
+
+                const result = await response.json();
+                console.log(result);  // To log the response from the server
+                if (response.ok) {
+                    alert('Login Successful!');
+                    window.location.reload();
+                    // console.log(result)
+                    localStorage.setItem('userId', result.userId);
+                    localStorage.setItem('username1', result.username);
+                    console.log(result.userId);
+                    console.log(localStorage.getItem('username1'));
+                    document.getElementById('login-modal').style.display = 'none';
+                    document.getElementById('login-btn').style.display = 'none';
+                    document.getElementById('signup-btn').style.display = 'none';
+                     const userName = localStorage.getItem('username1'); // Replace this with the actual name of the user
+
+                      // Get references to elements
+                    const logoContainer = document.getElementById('logo-container');
+                    const authButtons = document.getElementById('auth-buttons');
+                    const userLogo = document.getElementById('userLogo');
+
+                    // Check if the user is logged in
+                    if (userName) {
+                        // Extract the first letter of the user's name
+                        const firstLetter = userName.charAt(0);
+
+                        // Set the first letter as the content of the logo
+                        userLogo.textContent = firstLetter;
+                        document.getElementById('logo-container').style.display='block'
+                        // Add logged-in class to header to toggle between logo and buttons
+                        header.classList.add('logged-in');
+                    } else {
+                        // If no user is logged in, the logo and buttons will remain hidden until a user logs in
+                        header.classList.remove('logged-in');
+                    }
+
+            // Set the first letter as the content of the logo
+                    document.getElementById('userLogo').textContent = firstLetter;
+                } else {
+                    alert(`Login Failed: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // alert('An error occurred. Please try again later.');
+            }
+        });
+        const userId = localStorage.getItem('userId');
+        const username = localStorage.getItem('username1');
+        console.log(username);
+        // Pre-fill the User ID field and disable it
+        const userIdInput = document.getElementById('goal-user-id');
+        const userIdInput1 = document.getElementById('account-user-id');
+        const userIdInput2 = document.getElementById('category-user-id');
+        const userIdInput3 = document.getElementById('transaction-user-id');
+        const userIdInput4 = document.getElementById('goal-user-id');
+        const userIdInput5 = document.getElementById('budget-user-id');
+        const userIdInput6 = document.getElementById('notification-user-id');
+
+
+        if (userId&&username) {
+            userIdInput.value = userId; 
+            userIdInput1.value = userId; 
+            userIdInput2.value = userId; 
+            userIdInput3.value = userId; 
+            userIdInput4.value = userId; 
+            userIdInput5.value = userId; 
+            userIdInput6.value = userId; 
+           
+            document.getElementById('account-name').value =username;
+            
+        } else {
+            document.getElementById('userIdDisplay').textContent = userId || 'Please login for automatically fetch userId ! ';
+            document.getElementById('userIdDisplay').style.color='red';
+            // alert('User ID is not available in local storage!');
+        }
+
+        function handlelogout(){
+            localStorage.clear();
+            window.location.reload();
+        }
+
+        window.onload = function fetchCategories () {
+            const userName = localStorage.getItem('username1');  // Replace with the actual key
+
+            // Get references to elements
+            const userLogo = document.getElementById('userLogo');
+            const loginBtn = document.getElementById('login-btn');
+            const signupBtn = document.getElementById('signup-btn');
+            const header = document.querySelector('header');
+
+            // Check if the user is logged in (i.e., if username exists in localStorage)
+            if (userName.length!=0) {
+                // console.log("Hdiahfosdhf");
+                // Extract the first letter of the user's name
+                const firstLetter = userName.charAt(0).toUpperCase();
+
+                // Set the first letter as the content of the logo
+                userLogo.textContent = firstLetter;
+
+                // Show the logo and hide login/signup buttons
+                userLogo.style.display = 'flex';  // Show the logo
+                loginBtn.style.display = 'none';  // Hide login button
+                signupBtn.style.display = 'none'; // Hide signup button
+                document.getElementById('logout-btn').style.display='block'
+                // Add the logged-in class to the header to manage the UI changes
+                header.classList.add('logged-in');
+            } else {
+                // If no user is logged in (no username in localStorage), hide the logo and show login/signup buttons
+                userLogo.style.display = 'none';  // Hide the logo
+                loginBtn.style.display = 'inline'; // Show login button
+                signupBtn.style.display = 'inline'; // Show signup button
+
+                // Remove the logged-in class
+                header.classList.remove('logged-in');
+            }
+        //    localStorage.clear();
+            
+            document.getElementById('userIdDisplay').textContent = userId || 'Please login for automatically fetch userId ! ';
+
+            if (!userId) {
+                alert('Please Login First to see your data.');
+                return;
+            }
+
+            // Fetch the categories from the server using the user_id query parameter
+            fetch(`http://localhost:3000/get-category?user_id=${userId}`)
+            
+                .then(response => response.json())
+                
+                .then(data => {
+                    
+                    const tableBody = document.getElementById('categoriesTable').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = ''; // Clear any existing rows
+
+                    // Loop through the fetched categories and add them to the table
+                    data.forEach(category => {
+                        const row = tableBody.insertRow();
+                        const cell1 = row.insertCell(0);
+                        const cell2 = row.insertCell(1);
+                        const cell3 = row.insertCell(2);
+
+                        cell1.textContent = category.category_id;
+                        cell2.textContent = category.category_name;
+                        cell3.textContent = category.category_type;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching categories:', error);
+                    alert('An error occurred while fetching categories.');
+                });
+                fetch(`http://localhost:3000/get-transactions?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('transactionsTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';  // Clear any existing rows
+
+                // Loop through the fetched transactions and add them to the table
+                data.forEach(transaction => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+                    const cell5 = row.insertCell(4);
+
+                    cell1.textContent = transaction.transaction_id;
+                    cell2.textContent = transaction.category_id;  // You may want to map this to category_name
+                    cell3.textContent = transaction.amount;
+                    cell4.textContent = transaction.transaction_date;
+                    cell5.textContent = transaction.description;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching transactions:', error);
+                alert('An error occurred while fetching transactions.');
+            });
+            fetch(`http://localhost:3000/get-budgets?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('budgetsTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';  // Clear any existing rows
+
+                // Loop through the fetched budgets and add them to the table
+                data.forEach(budget => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+                    const cell5 = row.insertCell(4);
+
+                    cell1.textContent = budget.budget_id;
+                    cell2.textContent = budget.category_name;
+                    cell3.textContent = budget.amount;
+                    cell4.textContent = budget.start_date;
+                    cell5.textContent = budget.end_date;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching budgets:', error);
+                alert('An error occurred while fetching budgets.');
+            });
+            fetch(`http://localhost:3000/get-goals?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('goalsTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';  // Clear any existing rows
+
+                // Loop through the fetched goals and add them to the table
+                data.forEach(goal => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+                    const cell5 = row.insertCell(4);
+
+                    cell1.textContent = goal.goal_id;
+                    cell2.textContent = goal.goal_name;
+                    cell3.textContent = goal.target_amount;
+                    cell4.textContent = goal.current_amount;
+                    cell5.textContent = goal.due_date;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching goals:', error);
+                alert('An error occurred while fetching goals.');
+            });
+            fetch(`http://localhost:3000/get-notifications?user_id=${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('notificationsTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';  // Clear any existing rows
+
+                // Loop through the fetched notifications and add them to the table
+                data.forEach(notification => {
+                    const row = tableBody.insertRow();
+                    const cell1 = row.insertCell(0);
+                    const cell2 = row.insertCell(1);
+                    const cell3 = row.insertCell(2);
+                    const cell4 = row.insertCell(3);
+
+                    cell1.textContent = notification.notification_id;
+                    cell2.textContent = notification.message;
+                    cell3.textContent = notification.notification_date;
+                    cell4.textContent = notification.is_read ? 'Read' : 'Unread';
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching notifications:', error);
+                alert('An error occurred while fetching notifications.');
+            });
+        }
+        
+        
+    </script>
+    
+
+</body>
+</html>
